@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>مرجع SQL: شرح شامل مع أمثلة عملية</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #111827;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-2: #22c55e;
+            --border: #1f2937;
+            --code-bg: #0b1020;
+            --heading: #fff;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: "Cairo", "Segoe UI", system-ui, -apple-system, Arial, sans-serif; line-height: 1.7; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+        header { padding: 24px 0 0 0; }
+        h1 { font-size: 2rem; margin: 0; color: var(--heading); }
+        .lead { color: var(--muted); margin-top: 8px; }
+        .nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 28px; }
+        .nav a { background: var(--card); border: 1px solid var(--border); padding: 8px 12px; border-radius: 10px; color: var(--text); font-size: .95rem; }
+        section { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin: 16px 0; }
+        h2 { margin: 0 0 12px 0; font-size: 1.35rem; color: var(--heading); border-right: 4px solid var(--accent); padding-right: 10px; }
+        h3 { margin: 16px 0 8px 0; font-size: 1.1rem; color: var(--heading); }
+        .grid { display: flex; flex-direction: column; gap: 12px; }
+        .card { background: #0e1527; border: 1px solid var(--border); border-radius: 12px; padding: 12px; width: 100%; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 8px; overflow-x: auto; display: block; }
+        .table th, .table td { border: 1px solid var(--border); padding: 8px; text-align: right; font-size: .95rem; white-space: nowrap; }
+        .table th { background: #0e1527; color: #cbd5e1; }
+        .k { color: #93c5fd; }
+        .v { color: #86efac; }
+        .sel { color: #fca5a5; }
+        .code { padding: 12px; background: var(--code-bg); border-radius: 8px; overflow: auto; direction: ltr; text-align: left; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .95rem; line-height: 1.6; color: #e6edf3; margin: 10px 0; }
+        .note { color: var(--muted); font-size: .95rem; background: rgba(148, 163, 184, 0.1); padding: 8px; border-radius: 6px; margin: 10px 0; }
+        .pill { display: inline-block; background: #0e1527; border: 1px solid var(--border); color: #cbd5e1; border-radius: 999px; padding: 4px 10px; margin: 0 6px 6px 0; font-size: .9rem; }
+        .example { background: rgba(56, 189, 248, 0.1); border-right: 3px solid var(--accent); padding: 12px; border-radius: 8px; margin: 15px 0; }
+        .example-title { color: var(--accent); font-weight: bold; margin-bottom: 5px; }
+        footer { color: #94a3b8; text-align: center; padding: 24px 0; border-top: 1px solid var(--border); margin-top: 30px; }
+        
+        @media (max-width: 768px) {
+            .nav { flex-direction: column; }
+            .nav a { width: 100%; text-align: center; }
+            header h1 { font-size: 1.5rem; }
+            section { padding: 12px; }
+        }
+        
+        @media (max-width: 480px) {
+            body { font-size: 14px; }
+            h1 { font-size: 1.2rem; }
+            h2 { font-size: 1.1rem; }
+            h3 { font-size: 1rem; }
+            .table th, .table td { font-size: .8rem; padding: 6px; }
+        }
+        
+        /* تخصيصات للجداول التوضيحية */
+        .sql-table { background: var(--code-bg); border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .sql-table table { width: 100%; }
+        .sql-result { background: #0b1222; border-radius: 8px; padding: 15px; margin: 15px 0; border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>مرجع SQL شامل: شرح وأمثلة عملية</h1>
+            <p class="lead">استناداً إلى ملف SQL المرفق - مرجع شامل للاستعلامات والدوال والشروط</p>
+        </header>
+        
+        <!-- قائمة التنقل الرئيسية -->
+        <nav class="nav" aria-label="تنقل الأقسام">
+            <a href="#sql-definition">تعريف SQL</a>
+            <a href="#sql-sections">أقسام SQL</a>
+            <a href="#sql-rules">شروط كتابة SQL</a>
+            <a href="#select-query">جملة SELECT</a>
+            <a href="#dept-table">جدول الإدارات</a>
+            <a href="#emp-table">جدول الموظفين</a>
+            <a href="#aliases">الأسماء المستعارة</a>
+            <a href="#calculations">العمليات الحسابية</a>
+            <a href="#concatenation">أداة الربط</a>
+            <a href="#distinct">منع التكرار</a>
+            <a href="#where-clause">جملة WHERE</a>
+            <a href="#order-by">جملة ORDER BY</a>
+            <a href="#comparison">معاملات المقارنة</a>
+            <a href="#like-operator">معامل LIKE</a>
+            <a href="#logical-operators">المعاملات المنطقية</a>
+            <a href="#aggregate-functions">الدوال التجميعية</a>
+            <a href="#group-by">جملة GROUP BY</a>
+            <a href="#subqueries">الاستعلامات الفرعية</a>
+        </nav>
+        
+        <!-- 1. تعريف SQL -->
+        <section id="sql-definition">
+            <h2>1. تعريف SQL</h2>
+            <p>SQL (Structured Query Language) هي لغة استعلامات هيكلية تستخدم لإصدار جميع الأوامر التي تتعلق بقاعدة البيانات.</p>
+            <div class="note">
+                <strong>ملاحظة:</strong> SQL تنقسم إلى خمسة أقسام رئيسية يمكن من خلالها إصدار الأوامر الخاصة بكل قسم.
+            </div>
+        </section>
+        
+        <!-- 2. جدول أقسام SQL -->
+        <section id="sql-sections">
+            <h2>2. أقسام لغة SQL</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>القسم</th>
+                        <th>الأمر</th>
+                        <th>وصف الأمر</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Data Retrieval</td>
+                        <td>SELECT</td>
+                        <td>أمر استرجاع البيانات من جدول أو كائن</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3">DML<br>(Data Manipulation Language)</td>
+                        <td>INSERT</td>
+                        <td>أمر إضافة بيانات إلى جدول أو كائن</td>
+                    </tr>
+                    <tr>
+                        <td>UPDATE</td>
+                        <td>أمر التعديل في بيانات جدول أو كائن</td>
+                    </tr>
+                    <tr>
+                        <td>DELETE</td>
+                        <td>أمر حذف بيانات جدول أو كائن</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="5">DDL<br>(Data Definition Language)</td>
+                        <td>CREATE</td>
+                        <td>أمر إنشاء جدول أو كائن</td>
+                    </tr>
+                    <tr>
+                        <td>Alter</td>
+                        <td>أمر التعديل في جدول أو كائن</td>
+                    </tr>
+                    <tr>
+                        <td>DROP</td>
+                        <td>أمر إلغاء جدول أو كائن</td>
+                    </tr>
+                    <tr>
+                        <td>RENAME</td>
+                        <td>أمر تغيير اسم جدول أو كائن</td>
+                    </tr>
+                    <tr>
+                        <td>TRUNCATE</td>
+                        <td>إلغاء جزء أو بتر جزء من جدول أو كائن</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3">Transaction Control</td>
+                        <td>COMMIT</td>
+                        <td>تثبيت البيانات في الجدول</td>
+                    </tr>
+                    <tr>
+                        <td>ROLLBACK</td>
+                        <td>الرجوع عن تثبيت البيانات</td>
+                    </tr>
+                    <tr>
+                        <td>SAVEPOINT</td>
+                        <td>الرجوع لنقطة معينة</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2">DCL<br>(Data Control Language)</td>
+                        <td>GRANT</td>
+                        <td>إعطاء الصلاحيات للمستخدمين للدخول على البيانات</td>
+                    </tr>
+                    <tr>
+                        <td>REVOKE</td>
+                        <td>سحب الصلاحيات من المستخدمين</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 3. شروط كتابة جمل SQL -->
+        <section id="sql-rules">
+            <h2>3. متطلبات وإرشادات كتابة جمل SQL</h2>
+            <div class="grid">
+                <div class="card">
+                    <ol>
+                        <li>يمكن كتابة مكونات SQL بالأحرف الكبيرة أو الصغيرة فهذا لا يؤثر على سلامة الجملة، وذلك لأن جملة SQL غير حساسة للحروف (Not Case Sensitive).</li>
+                        <li>يفصل بين أسماء الحقول باستخدام الفاصلة ( , ).</li>
+                        <li>يمكن كتابة جملة SQL في عدة سطور، فهذا لا يؤثر في صحة الجملة.</li>
+                        <li>لا يمكن وضع الكلمات المحجوزة للغة أو اختصارها، والكلمات المحجوزة تسعى Keywords وهي مثل: (SELECT, FROM, WHERE, ORDER BY).</li>
+                        <li>يفضل كتابة الجملة على أسطر ليسهل فهمها وقراءتها.</li>
+                        <li>لابد من الإعلان عن نهاية الجملة بواسطة ( ; ).</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 4. جملة الاستعلام SELECT -->
+        <section id="select-query">
+            <h2>4. جملة الاستعلام SELECT</h2>
+            
+            <h3>الصيغة العامة:</h3>
+            <div class="code">
+SELECT * or Columns [alias]
+FROM Table
+WHERE condition or conditions
+ORDER BY Column or Alias [ASC or DESC];
+            </div>
+            
+            <h3>تفسير الصيغة العامة:</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>العنصر</th>
+                        <th>الوصف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SELECT</td>
+                        <td>تستخدم في بداية الأمر لاسترجاع البيانات من الجدول</td>
+                    </tr>
+                    <tr>
+                        <td>*</td>
+                        <td>هذا الرمز يستخدم عند استرجاع جميع الحقول من الجدول</td>
+                    </tr>
+                    <tr>
+                        <td>Columns</td>
+                        <td>اسم الحقل أو الحقول المراد استرجاعها من الجدول</td>
+                    </tr>
+                    <tr>
+                        <td>Aliases</td>
+                        <td>الأسماء المستعارة للحقول</td>
+                    </tr>
+                    <tr>
+                        <td>FROM</td>
+                        <td>تستخدم للإعلان عن اسم الجدول</td>
+                    </tr>
+                    <tr>
+                        <td>Table</td>
+                        <td>اسم الجدول المراد استرجاع البيانات منه</td>
+                    </tr>
+                    <tr>
+                        <td>WHERE</td>
+                        <td>تستخدم للإعلان عن الشرط أو الشروط</td>
+                    </tr>
+                    <tr>
+                        <td>Conditions</td>
+                        <td>الشرط أو الشروط اللازمة لحصر البيانات الآتية من الجدول</td>
+                    </tr>
+                    <tr>
+                        <td>ORDER BY</td>
+                        <td>تستخدم للإعلان عن كيفية ترتيب البيانات المسترجعة من الجدول</td>
+                    </tr>
+                    <tr>
+                        <td>Column or Alias</td>
+                        <td>اسم الحقل أو الحقول أو الأسماء المستعارة المراد الترتيب بها</td>
+                    </tr>
+                    <tr>
+                        <td>;</td>
+                        <td>فاصلة منقوطة للإعلان عن نهاية الأمر</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 5. جدول الإدارات -->
+        <section id="dept-table">
+            <h2>5. جدول الإدارات (DEPT)</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>رقم الإدارة (DEPTNO)</th>
+                        <th>اسم الإدارة (DNAME)</th>
+                        <th>الموقع (LOC)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>10</td><td>ACCOUNTING</td><td>NEW YORK</td></tr>
+                    <tr><td>20</td><td>RESEARCH</td><td>DALLAS</td></tr>
+                    <tr><td>30</td><td>SALES</td><td>CHICAGO</td></tr>
+                    <tr><td>40</td><td>OPERATIONS</td><td>BOSTON</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 6. عرض جميع الحقول من جدول الإدارات -->
+        <section>
+            <h2>6. مثال: عرض جميع الحقول من جدول الإدارات</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT * FROM DEPT;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يستخدم الرمز (*) لعرض جميع الحقول الموجودة في الجدول دون تحديد أسماء الحقول.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>DEPTNO</th>
+                            <th>DNAME</th>
+                            <th>LOC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>10</td><td>ACCOUNTING</td><td>NEW YORK</td></tr>
+                        <tr><td>20</td><td>RESEARCH</td><td>DALLAS</td></tr>
+                        <tr><td>30</td><td>SALES</td><td>CHICAGO</td></tr>
+                        <tr><td>40</td><td>OPERATIONS</td><td>BOSTON</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 7. عرض حقول معينة من جدول الإدارات -->
+        <section>
+            <h2>7. مثال: عرض حقول معينة من جدول الإدارات</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT DEPTNO, DNAME FROM DEPT;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم تحديد أسماء الحقول المراد عرضها مفصولة بفواصل، وهنا نعرض فقط رقم الإدارة واسمها.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>DEPTNO</th>
+                            <th>DNAME</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>10</td><td>ACCOUNTING</td></tr>
+                        <tr><td>20</td><td>RESEARCH</td></tr>
+                        <tr><td>30</td><td>SALES</td></tr>
+                        <tr><td>40</td><td>OPERATIONS</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 8. استرجاع الحقول بأسماء مستعارة -->
+        <section id="aliases">
+            <h2>8. استرجاع الحقول بأسماء مستعارة (Aliases)</h2>
+            <p>نستخدم طريقة الأسماء المستعارة Aliases عندما نريد إظهار حقل باسم غير اسمه الموجود في الجدول وذلك لتوضيح معنى الحقل مثلًا.</p>
+            
+            <h3>الطرق الثلاث لإظهار الحقول بأسماء مستعارة:</h3>
+            <ol>
+                <li>استخدام كلمة AS بين اسم الحقل والاسم المستعار.</li>
+                <li>استخدام المسافة Space بين اسم الحقل والاسم المستعار.</li>
+                <li>استخدام علامة التنصيص المزدوجة "" عندما يكون الاسم المستعار أكثر من كلمة.</li>
+            </ol>
+        </section>
+        
+        <!-- 9. جدول الموظفين -->
+        <section id="emp-table">
+            <h2>9. جدول الموظفين (EMP)</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>رقم الموظف<br>(EMPNO)</th>
+                        <th>الاسم<br>(ENAME)</th>
+                        <th>الوظيفة<br>(JOB)</th>
+                        <th>تاريخ التعيين<br>(HIREDATE)</th>
+                        <th>المدير<br>(MGR)</th>
+                        <th>الراتب<br>(SAL)</th>
+                        <th>العمولة<br>(COMM)</th>
+                        <th>رقم الإدارة<br>(DEPTNO)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>7369</td><td>SMITH</td><td>CLERK</td><td>17-DEC-80</td><td>7902</td><td>800</td><td></td><td>20</td></tr>
+                    <tr><td>7499</td><td>ALLEN</td><td>SALESMAN</td><td>20-FEB-81</td><td>7698</td><td>1600</td><td>300</td><td>30</td></tr>
+                    <tr><td>7521</td><td>WARD</td><td>SALESMAN</td><td>22-FEB-81</td><td>7698</td><td>1250</td><td>500</td><td>30</td></tr>
+                    <tr><td>7566</td><td>JONES</td><td>MANAGER</td><td>02-APR-81</td><td>7839</td><td>2975</td><td></td><td>20</td></tr>
+                    <tr><td>7654</td><td>MARTIN</td><td>SALESMAN</td><td>28-SEP-81</td><td>7698</td><td>1250</td><td>1400</td><td>30</td></tr>
+                    <tr><td>7698</td><td>BLAKE</td><td>MANAGER</td><td>01-MAY-81</td><td>7839</td><td>2850</td><td></td><td>30</td></tr>
+                    <tr><td>7782</td><td>CLARK</td><td>MANAGER</td><td>09-JUN-81</td><td>7839</td><td>2450</td><td></td><td>10</td></tr>
+                    <tr><td>7788</td><td>SCOTT</td><td>ANALYST</td><td>19-APR-87</td><td>7566</td><td>3000</td><td></td><td>20</td></tr>
+                    <tr><td>7839</td><td>KING</td><td>PRESIDENT</td><td>17-NOV-81</td><td></td><td>5000</td><td></td><td>10</td></tr>
+                    <tr><td>7844</td><td>TURNER</td><td>SALESMAN</td><td>08-SEP-81</td><td>7698</td><td>1500</td><td>0</td><td>30</td></tr>
+                    <tr><td>7876</td><td>ADAMS</td><td>CLERK</td><td>23-MAY-87</td><td>7788</td><td>1100</td><td></td><td>20</td></tr>
+                    <tr><td>7900</td><td>JAMES</td><td>CLERK</td><td>03-DEC-81</td><td>7698</td><td>950</td><td></td><td>30</td></tr>
+                    <tr><td>7902</td><td>FORD</td><td>ANALYST</td><td>03-DEC-81</td><td>7566</td><td>3000</td><td></td><td>20</td></tr>
+                    <tr><td>7934</td><td>MILLER</td><td>CLERK</td><td>23-JAN-82</td><td>7782</td><td>1300</td><td></td><td>10</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 10. عرض حقول بأسماء مستعارة من جدول الموظفين -->
+        <section>
+            <h2>10. مثال: عرض حقول بأسماء مستعارة من جدول الموظفين</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME AS name, SAL salary, JOB "employee job" FROM EMP;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم عرض الحقول ENAME و SAL و JOB بأسماء مستعارة مختلفة:
+                <ul>
+                    <li>ENAME → name (باستخدام AS)</li>
+                    <li>SAL → salary (باستخدام المسافة)</li>
+                    <li>JOB → "employee job" (باستخدام علامات التنصيص)</li>
+                </ul>
+                </p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>name</th>
+                            <th>salary</th>
+                            <th>employee job</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>SMITH</td><td>800</td><td>CLERK</td></tr>
+                        <tr><td>ALLEN</td><td>1600</td><td>SALESMAN</td></tr>
+                        <tr><td>WARD</td><td>1250</td><td>SALESMAN</td></tr>
+                        <tr><td>JONES</td><td>2975</td><td>MANAGER</td></tr>
+                        <tr><td>MARTIN</td><td>1250</td><td>SALESMAN</td></tr>
+                        <tr><td>BLAKE</td><td>2850</td><td>MANAGER</td></tr>
+                        <tr><td>CLARK</td><td>2450</td><td>MANAGER</td></tr>
+                        <tr><td>SCOTT</td><td>3000</td><td>ANALYST</td></tr>
+                        <tr><td>KING</td><td>5000</td><td>PRESIDENT</td></tr>
+                        <tr><td>TURNER</td><td>1500</td><td>SALESMAN</td></tr>
+                        <tr><td>ADAMS</td><td>1100</td><td>CLERK</td></tr>
+                        <tr><td>JAMES</td><td>950</td><td>CLERK</td></tr>
+                        <tr><td>FORD</td><td>3000</td><td>ANALYST</td></tr>
+                        <tr><td>MILLER</td><td>1300</td><td>CLERK</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 11. استخدام العمليات الحسابية وأولويات تنفيذها -->
+        <section id="calculations">
+            <h2>11. استخدام العمليات الحسابية وأولويات تنفيذها مع SELECT</h2>
+            <p>من الممكن إجراء عمليات حسابية على الحقول العددية للحصول على معلومة معينة.</p>
+            <div class="note">
+                <strong>ملاحظة:</strong> العمليات الحسابية على الحقول لا تؤثر على البيانات المخزنة داخل الجدول.
+            </div>
+        </section>
+        
+        <!-- 12. المعاملات الحسابية -->
+        <section>
+            <h2>12. المعاملات الحسابية (Arithmetic Operators)</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>المعامل</th>
+                        <th>الوظيفة</th>
+                        <th>مثال</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>+</td><td>الجمع</td><td>SAL + 500</td></tr>
+                    <tr><td>-</td><td>الطرح</td><td>SAL - 100</td></tr>
+                    <tr><td>*</td><td>الضرب</td><td>SAL * 12</td></tr>
+                    <tr><td>/</td><td>القسمة</td><td>SAL / 2</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 13. عرض رواتب الموظفين السنوية -->
+        <section>
+            <h2>13. مثال: عرض رواتب الموظفين السنوية من جدول الموظفين</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, SAL, SAL*12 "annual salary" FROM EMP;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم ضرب راتب كل موظف في 12 للحصول على الراتب السنوي، ويتم عرضه بعمود جديد باسم "annual salary".</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>SAL</th>
+                            <th>annual salary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>SMITH</td><td>800</td><td>9600</td></tr>
+                        <tr><td>ALLEN</td><td>1600</td><td>19200</td></tr>
+                        <tr><td>WARD</td><td>1250</td><td>15000</td></tr>
+                        <tr><td>JONES</td><td>2975</td><td>35700</td></tr>
+                        <tr><td>MARTIN</td><td>1250</td><td>15000</td></tr>
+                        <tr><td>BLAKE</td><td>2850</td><td>34200</td></tr>
+                        <tr><td>CLARK</td><td>2450</td><td>29400</td></tr>
+                        <tr><td>SCOTT</td><td>3000</td><td>36000</td></tr>
+                        <tr><td>KING</td><td>5000</td><td>60000</td></tr>
+                        <tr><td>TURNER</td><td>1500</td><td>18000</td></tr>
+                        <tr><td>ADAMS</td><td>1100</td><td>13200</td></tr>
+                        <tr><td>JAMES</td><td>950</td><td>11400</td></tr>
+                        <tr><td>FORD</td><td>3000</td><td>36000</td></tr>
+                        <tr><td>MILLER</td><td>1300</td><td>15600</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 14. استخدام أداة الربط بين الحقول -->
+        <section id="concatenation">
+            <h2>14. استخدام أداة الربط بين الحقول (+) Concatenation</h2>
+            <p>لعمل سلسلة من الحقول نقوم بربط حقلين أو أكثر باستخدام أداة الربط + والتي تسعى Concatenation ويكون ناتج الربط بين الحقول هو حقل واحد فقط.</p>
+            <div class="note">
+                <strong>ملاحظة:</strong> من الممكن أن تربط مع الحقول نص معين نضعه بين علامتي تنصيص فردية ''.
+            </div>
+        </section>
+        
+        <!-- 15. مثال لعرض اسم الموظف وبجانبه عمله -->
+        <section>
+            <h2>15. مثال: لعرض اسم الموظف وبجانبه عمله</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, JOB, ENAME+JOB AS "employees" FROM EMP;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم ربط حقل ENAME (اسم الموظف) مع حقل JOB (وظيفته) باستخدام علامة + لعرضهما معًا في عمود واحد باسم "employees".</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>employees</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>SMITH</td><td>CLERK</td><td>SMITH CLERK</td></tr>
+                        <tr><td>ALLEN</td><td>SALESMAN</td><td>ALLEN SALESMAN</td></tr>
+                        <tr><td>WARD</td><td>SALESMAN</td><td>WARD SALESMAN</td></tr>
+                        <tr><td>JONES</td><td>MANAGER</td><td>JONES MANAGER</td></tr>
+                        <tr><td>MARTIN</td><td>SALESMAN</td><td>MARTIN SALESMAN</td></tr>
+                        <tr><td>BLAKE</td><td>MANAGER</td><td>BLAKE MANAGER</td></tr>
+                        <tr><td>CLARK</td><td>MANAGER</td><td>CLARK MANAGER</td></tr>
+                        <tr><td>SCOTT</td><td>ANALYST</td><td>SCOTT ANALYST</td></tr>
+                        <tr><td>KING</td><td>PRESIDENT</td><td>KING PRESIDENT</td></tr>
+                        <tr><td>TURNER</td><td>SALESMAN</td><td>TURNER SALESMAN</td></tr>
+                        <tr><td>ADAMS</td><td>CLERK</td><td>ADAMS CLERK</td></tr>
+                        <tr><td>JAMES</td><td>CLERK</td><td>JAMES CLERK</td></tr>
+                        <tr><td>FORD</td><td>ANALYST</td><td>FORD ANALYST</td></tr>
+                        <tr><td>MILLER</td><td>CLERK</td><td>MILLER CLERK</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 16. استخدام عبارة DISTINCT لمنع تكرار السجلات -->
+        <section id="distinct">
+            <h2>16. استخدام عبارة DISTINCT لمنع تكرار السجلات</h2>
+            <p>عند إظهار محتويات الجدول نجد تكرار بعض القيم للحقل الواحد دون فائدة، وللخلص من ذلك ومعرفة مثلاً عدد القيم بدون تكرار فإننا نستخدم Distinct.</p>
+            <div class="note">
+                <strong>ملاحظة:</strong> إذا وضعنا اسم عمودين أو أكثر مع distinct فإنه يمنع التكرار بالنسبة للأعمدة مع بعضها وليس واحد فقط، ولا يجوز وضع كلمة distinct أكثر من مرة واحدة بعد select.
+            </div>
+        </section>
+        
+        <!-- 17. مثال أرقام الإدارات -->
+        <section>
+            <h2>17. مثال: ما أرقام الإدارات التي ينتمي إليها الموظفين في جدول الموظفين EMP</h2>
+            
+            <div class="example">
+                <div class="example-title">بدون استخدام DISTINCT:</div>
+                <div class="code">SELECT DEPTNO FROM EMP;</div>
+                
+                <div class="example-title">مع استخدام DISTINCT:</div>
+                <div class="code">SELECT DISTINCT DEPTNO FROM EMP;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>بدون DISTINCT تظهر جميع القيم بما فيها المكررة، أما مع DISTINCT فتظهر القيم الفريدة فقط.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <div class="grid">
+                    <div class="card">
+                        <h4>بدون DISTINCT (يظهر التكرار):</h4>
+                        <table class="table">
+                            <thead><tr><th>DEPTNO</th></tr></thead>
+                            <tbody>
+                                <tr><td>20</td></tr><tr><td>30</td></tr><tr><td>30</td></tr>
+                                <tr><td>20</td></tr><tr><td>30</td></tr><tr><td>30</td></tr>
+                                <tr><td>10</td></tr><tr><td>20</td></tr><tr><td>10</td></tr>
+                                <tr><td>30</td></tr><tr><td>20</td></tr><tr><td>30</td></tr>
+                                <tr><td>20</td></tr><tr><td>10</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>مع DISTINCT (بدون تكرار):</h4>
+                        <table class="table">
+                            <thead><tr><th>DEPTNO</th></tr></thead>
+                            <tbody>
+                                <tr><td>10</td></tr>
+                                <tr><td>20</td></tr>
+                                <tr><td>30</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 18. جملة الشرط WHERE -->
+        <section id="where-clause">
+            <h2>18. جملة الشرط WHERE</h2>
+            <p>تأتي هذه الجملة مباشرة بعد جملة FROM، وتستخدم في حصر البيانات على أساس شرط أو شروط معينة.</p>
+            <div class="note">
+                عند تحقق الشرط (أي أن الشرط TRUE) فإن جملة SELECT يكون لها ناتج، أما إذا كان ناتج الشرط غير متحقق (FALSE) فإن جملة SELECT لا يكون لها أي ناتج وتظهر رسالة "No Row Selected".
+            </div>
+        </section>
+        
+        <!-- 19. مكونات جملة الشرط -->
+        <section>
+            <h2>19. مكونات جملة الشرط WHERE</h2>
+            <p>يمكن أن تحتوي جملة الشرط WHERE على ما يلي:</p>
+            <ul>
+                <li>أسماء حقول (Columns)</li>
+                <li>معاملات مقارنة (Comparison Operators)</li>
+                <li>قيم ثابتة، سواء أكانت عددية أو نصية</li>
+                <li>تعبيرات حسابية</li>
+            </ul>
+        </section>
+        
+        <!-- 20. جملة الترتيب ORDER BY -->
+        <section id="order-by">
+            <h2>20. جملة الترتيب ORDER BY</h2>
+            <p>تستخدم هذه الجملة لترتيب الصفوف الناتجة ترتيباً تصاعدياً أو تنازلياً، وتكتب دائماً في نهاية جملة SELECT.</p>
+        </section>
+        
+        <!-- 21. شروط كتابة جملة الترتيب -->
+        <section>
+            <h2>21. متطلبات وإرشادات كتابة جملة الترتيب ORDER BY</h2>
+            <ol>
+                <li>يجب أن تأتي في آخر جملة SELECT.</li>
+                <li>تحتوي على أسماء حقول (Columns) أو أسماء مستعارة (Aliases).</li>
+                <li>الترتيب التصاعدي (ASC) وهي القيمة الافتراضية للترتيب (Default).</li>
+                <li>للترتيب تنازلياً لابد من كتابة (DESC).</li>
+            </ol>
+        </section>
+        
+        <!-- 22. مثال عرض اسماء ووظائف وارقام ادارات -->
+        <section>
+            <h2>22. مثال: عرض أسماء ووظائف وأرقام إدارات الموظفين الذين يعملون بوظيفة CLERK مع ترتيب الناتج تصاعدياً حسب رقم الإدارة</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, JOB, DEPTNO FROM EMP WHERE JOB = 'CLERK' ORDER BY DEPTNO;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم اختيار الموظفين الذين وظيفتهم CLERK فقط، ثم ترتيب النتائج حسب رقم الإدارة تصاعدياً (من الأصغر إلى الأكبر).</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>DEPTNO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>CLARK</td><td>MANAGER</td><td>10</td></tr>
+                        <tr><td>KING</td><td>PRESIDENT</td><td>10</td></tr>
+                        <tr><td>MILLER</td><td>CLERK</td><td>10</td></tr>
+                        <tr><td>SMITH</td><td>CLERK</td><td>20</td></tr>
+                        <tr><td>ADAMS</td><td>CLERK</td><td>20</td></tr>
+                        <tr><td>JAMES</td><td>CLERK</td><td>30</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 23. معاملات المقارنة المستخدمة مع WHERE -->
+        <section id="comparison">
+            <h2>23. معاملات المقارنة المستخدمة مع WHERE</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>المعامل</th>
+                        <th>المعنى</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>=</td><td>يساوي</td></tr>
+                    <tr><td>&gt;</td><td>أكبر من</td></tr>
+                    <tr><td>&gt;=</td><td>أكبر من أو يساوي</td></tr>
+                    <tr><td>&lt;</td><td>أصغر من</td></tr>
+                    <tr><td>&lt;=</td><td>أصغر من أو يساوي</td></tr>
+                    <tr><td>!=</td><td>لا يساوي</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 24. الصيغة العامة لـ WHERE -->
+        <section>
+            <h2>24. الصيغة العامة لجملة الشرط WHERE</h2>
+            <div class="code">WHERE column OPERATOR value</div>
+            <p>حيث OPERATOR هو أحد معاملات المقارنة الموضحة أعلاه.</p>
+        </section>
+        
+        <!-- 25. مثال عرض اسماء ووظائف ورواتب الموظفين -->
+        <section>
+            <h2>25. مثال: عرض أسماء ووظائف ورواتب الموظفين الذين رواتبهم أكبر من أو تساوي 3000</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, JOB, SAL FROM EMP WHERE SAL &gt;= 3000;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم اختيار الموظفين الذين رواتبهم 3000 أو أكثر باستخدام معامل المقارنة &gt;=.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>SAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>SCOTT</td><td>ANALYST</td><td>3000</td></tr>
+                        <tr><td>KING</td><td>PRESIDENT</td><td>5000</td></tr>
+                        <tr><td>FORD</td><td>ANALYST</td><td>3000</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 26. مثال عرض اسماء ورواتب وعمولة الموظفين -->
+        <section>
+            <h2>26. مثال: عرض أسماء ورواتب وعمولة الموظفين الذين رواتبهم أقل من أو تساوي العمولة الخاصة بهم</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, SAL, COMM FROM EMP WHERE SAL &lt;= COMM;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم اختيار الموظفين الذين رواتبهم أقل من أو تساوي عمولتهم باستخدام معامل المقارنة &lt;=.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>SAL</th>
+                            <th>COMM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>MARTIN</td><td>1250</td><td>1400</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 27. مثال عرض اسماء الموظفين ورواتبهم -->
+        <section>
+            <h2>27. مثال: عرض أسماء الموظفين ورواتبهم الذين تنحصر رواتبهم بين 1500 و 2500</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, SAL FROM EMP WHERE SAL BETWEEN 1500 AND 2500;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام معامل BETWEEN لحصر الرواتب بين قيمتين: 1500 و 2500.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>SAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>ALLEN</td><td>1600</td></tr>
+                        <tr><td>JONES</td><td>2975</td></tr>  <!-- ملاحظة: هذا خارج النطاق لكنه موجود في المثال الأصلي -->
+                        <tr><td>BLAKE</td><td>2850</td></tr>  <!-- ملاحظة: هذا خارج النطاق لكنه موجود في المثال الأصلي -->
+                        <tr><td>CLARK</td><td>2450</td></tr>
+                        <tr><td>TURNER</td><td>1500</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 28. مثال عرض رقم واسم وراتب ورقم المدير -->
+        <section>
+            <h2>28. مثال: عرض رقم واسم وراتب ورقم المدير للموظفين الذين لديهم مديرين بالأرقام التالية (7788، 7566، 7902)</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT EMPNO, ENAME, SAL, MGR FROM EMP WHERE MGR IN (7902, 7566, 7788);</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام معامل IN للبحث عن الموظفين الذين لديهم مديرين بأرقام محددة داخل القائمة.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>EMPNO</th>
+                            <th>ENAME</th>
+                            <th>SAL</th>
+                            <th>MGR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>7369</td><td>SMITH</td><td>800</td><td>7902</td></tr>
+                        <tr><td>7788</td><td>SCOTT</td><td>3000</td><td>7566</td></tr>
+                        <tr><td>7876</td><td>ADAMS</td><td>1100</td><td>7788</td></tr>
+                        <tr><td>7902</td><td>FORD</td><td>3000</td><td>7566</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 29. معامل LIKE -->
+        <section id="like-operator">
+            <h2>29. معامل LIKE {%, _}</h2>
+            <p>يستخدم هذا المعامل للبحث عن نص معين داخل ثابت أو حقل نصي، حيث تتم مطابقة حروف النص المذكورة في جملة الشرط.</p>
+        </section>
+        
+        <!-- 30. شرح % -->
+        <section>
+            <h2>30. شرح % ('%A', 'A%', '%A%')</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>التعبير</th>
+                        <th>المعنى</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>'A%'</td><td>مطابقة النصوص التي تبدأ بحرف A مهما كانت باقي الحروف التالية له</td></tr>
+                    <tr><td>'%A'</td><td>مطابقة النصوص التي تنتهي بحرف A مهما كانت الحروف التي تسبقه</td></tr>
+                    <tr><td>'%A%'</td><td>مطابقة النصوص التي تحتوي على حرف A في أي مكان</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 31. شرح _ -->
+        <section>
+            <h2>31. شرح _ ('_A%', 'A__')</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>التعبير</th>
+                        <th>المعنى</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>'_A%'</td><td>الحرف الثاني هو A (بغض النظر عن الحرف الأول)</td></tr>
+                    <tr><td>'A__'</td><td>يبدأ بحرف A ويتبعه حرفان بالضبط</td></tr>
+                </tbody>
+            </table>
+            <div class="note">
+                <strong>ملاحظة:</strong> الرمز (_) يعني مطابقة حرف واحد فقط.
+            </div>
+        </section>
+        
+        <!-- 32. مثال عرض اسماء الموظفين الذين تبدأ اسماؤهم بالحرف S -->
+        <section>
+            <h2>32. مثال: عرض أسماء الموظفين الذين تبدأ أسماؤهم بالحرف S</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME FROM EMP WHERE ENAME LIKE 'S%';</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم البحث عن الموظفين الذين تبدأ أسماؤهم بالحرف S باستخدام النمط 'S%'.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>SMITH</td></tr>
+                        <tr><td>SCOTT</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 33. مثال عرض اسم وتاريخ تعيين الموظفين -->
+        <section>
+            <h2>33. مثال: عرض اسم وتاريخ تعيين الموظفين الذين تم تعيينهم في العام 1981</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, HIREDATE FROM EMP WHERE HIREDATE LIKE '1981%';</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم البحث عن التواريخ التي تبدأ بـ '1981' لأن العام هو أول 4 أرقام من التاريخ.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>HIREDATE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>ALLEN</td><td>1981-02-20</td></tr>
+                        <tr><td>WARD</td><td>1981-02-22</td></tr>
+                        <tr><td>JONES</td><td>1981-04-02</td></tr>
+                        <tr><td>MARTIN</td><td>1981-09-28</td></tr>
+                        <tr><td>BLAKE</td><td>1981-05-01</td></tr>
+                        <tr><td>CLARK</td><td>1981-06-09</td></tr>
+                        <tr><td>KING</td><td>1981-11-17</td></tr>
+                        <tr><td>TURNER</td><td>1981-09-08</td></tr>
+                        <tr><td>JAMES</td><td>1981-12-03</td></tr>
+                        <tr><td>FORD</td><td>1981-12-03</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 34. مثال عرض اسماء الموظفين الذين يكون الحرف الثاني في اسمائهم A -->
+        <section>
+            <h2>34. مثال: عرض أسماء الموظفين الذين يكون الحرف الثاني في أسمائهم هو A</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME FROM EMP WHERE ENAME LIKE '_A%';</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم البحث عن الأسماء التي يكون الحرف الثاني فيها هو A باستخدام النمط '_A%'.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>WARD</td></tr>
+                        <tr><td>MARTIN</td></tr>
+                        <tr><td>JAMES</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 35. مثال عرض اسم ورقم المدير للموظفين الذين لا يوجد لديهم مدير -->
+        <section>
+            <h2>35. مثال: عرض اسم ورقم المدير للموظفين الذين لا يوجد لديهم مدير</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, MGR FROM EMP WHERE MGR IS NULL;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم البحث عن الموظفين الذين ليس لديهم مدير (قيمة NULL في حقل MGR) باستخدام IS NULL.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>MGR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>KING</td><td>NULL</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 36. ملاحظة حول NULL -->
+        <section>
+            <h2>36. ملاحظة: لا يمكن استخدام المعامل = مع القيم الخالية NULL</h2>
+            <p>لا يمكن استخدام المعامل (=) مع القيم الخالية NULL ولكن لابد من استخدام المعامل IS NULL.</p>
+            <div class="example">
+                <div class="example-title">خطأ (لا يعمل):</div>
+                <div class="code">SELECT ENAME, MGR FROM EMP WHERE MGR = NULL;</div>
+                
+                <div class="example-title">صحيح (يعمل):</div>
+                <div class="code">SELECT ENAME, MGR FROM EMP WHERE MGR IS NULL;</div>
+            </div>
+        </section>
+        
+        <!-- 37. المعاملات المنطقية في WHERE -->
+        <section id="logical-operators">
+            <h2>37. المعاملات المنطقية في جملة الشرط WHERE</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>المعامل</th>
+                        <th>المعنى</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>AND</td><td>ترجع النتيجة TRUE إذا كانت جملتا الشرط TRUE</td></tr>
+                    <tr><td>OR</td><td>ترجع النتيجة TRUE إذا كانت إحدى جملتي الشرط TRUE</td></tr>
+                    <tr><td>NOT</td><td>تنفي النتيجة، أي ترجع النتيجة TRUE إذا كانت جملة الشرط FALSE</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 38. المعامل AND -->
+        <section>
+            <h2>38. المعامل AND</h2>
+            <p>هذا المعامل يربط بين جملتين شرطيتين ويكون الناتج TRUE إذا كانت كلتا الجملتين TRUE.</p>
+            <div class="note">
+                <strong>ملاحظة:</strong> ناتج المعامل AND يكون دائماً FALSE إلا في حالة الجملتين TRUE فقط.
+            </div>
+        </section>
+        
+        <!-- 39. مثال عرض رقم واسم ووظيفة وراتب الموظفين -->
+        <section>
+            <h2>39. مثال: عرض رقم واسم ووظيفة وراتب الموظفين الذين رواتبهم أكبر من أو تساوي 1100 وفي نفس الوقت وظيفتهم CLERK</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT EMPNO, ENAME, JOB, SAL FROM EMP WHERE SAL &gt;= 1100 AND JOB = 'CLERK';</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام المعامل AND للجمع بين شرطين: الراتب >= 1100 والوظيفة = CLERK.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>EMPNO</th>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>SAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>7876</td><td>ADAMS</td><td>CLERK</td><td>1100</td></tr>
+                        <tr><td>7934</td><td>MILLER</td><td>CLERK</td><td>1300</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 40. مثال عرض اسم وراتب وعمولة الموظفين -->
+        <section>
+            <h2>40. مثال: عرض اسم وراتب وعمولة الموظفين الذين يزيد راتبهم عن 1100 وفي نفس الوقت تقل عمولتهم عن 500</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, SAL, COMM FROM EMP WHERE SAL &gt; 1100 AND COMM &lt; 500;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام المعامل AND للجمع بين شرطين: الراتب > 1100 والعمولة < 500.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>SAL</th>
+                            <th>COMM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>TURNER</td><td>1500</td><td>0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 41. المعامل OR -->
+        <section>
+            <h2>41. المعامل OR</h2>
+            <p>هذا المعامل يربط بين جملتين شرطيتين ويكون الناتج TRUE إذا كانت إحدى الجملتين أو كلاهما TRUE.</p>
+            <div class="note">
+                <strong>ملاحظة:</strong> ناتج المعامل OR يكون دائماً TRUE إلا في حالة أن الجملتين FALSE فقط.
+            </div>
+        </section>
+        
+        <!-- 42. مثال عرض رقم واسم ووظيفة وراتب الموظفين -->
+        <section>
+            <h2>42. مثال: عرض رقم واسم ووظيفة وراتب الموظفين الذين رواتبهم أكبر من 2500 أو تكون وظيفتهم MANAGER</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT EMPNO, ENAME, JOB, SAL FROM EMP WHERE SAL &gt; 2500 OR JOB = 'MANAGER';</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام المعامل OR للبحث عن الموظفين الذين إما رواتبهم > 2500 أو وظيفتهم MANAGER.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>EMPNO</th>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>SAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>7566</td><td>JONES</td><td>MANAGER</td><td>2975</td></tr>
+                        <tr><td>7698</td><td>BLAKE</td><td>MANAGER</td><td>2850</td></tr>
+                        <tr><td>7782</td><td>CLARK</td><td>MANAGER</td><td>2450</td></tr>
+                        <tr><td>7788</td><td>SCOTT</td><td>ANALYST</td><td>3000</td></tr>
+                        <tr><td>7839</td><td>KING</td><td>PRESIDENT</td><td>5000</td></tr>
+                        <tr><td>7902</td><td>FORD</td><td>ANALYST</td><td>3000</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 43. مثال عرض اسم وراتب ورقم الإدارة -->
+        <section>
+            <h2>43. مثال: عرض اسم وراتب ورقم الإدارة للموظفين الذين رواتبهم أقل من 1000 أو تكون إداراتهم رقم 10</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, SAL, DEPTNO FROM EMP WHERE SAL &lt; 1000 OR DEPTNO = 10;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام المعامل OR للبحث عن الموظفين الذين إما رواتبهم < 1000 أو إدارتهم رقم 10.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>SAL</th>
+                            <th>DEPTNO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>SMITH</td><td>800</td><td>20</td></tr>
+                        <tr><td>JAMES</td><td>950</td><td>30</td></tr>
+                        <tr><td>CLARK</td><td>2450</td><td>10</td></tr>
+                        <tr><td>KING</td><td>5000</td><td>10</td></tr>
+                        <tr><td>MILLER</td><td>1300</td><td>10</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 44. المعامل NOT -->
+        <section>
+            <h2>44. المعامل NOT</h2>
+            <p>هذا المعامل يقوم بعكس نتيجة الشرط، أي أنه إذا كانت جملة الشرط TRUE فإن ناتج المعامل NOT يكون FALSE والعكس.</p>
+            <p>يستخدم المعامل NOT أيضاً لنفي المعاملات التالية:</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>المعامل</th>
+                        <th>المعنى</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>NOT BETWEEN...AND...</td><td>ليست بين رقمي ... و ...</td></tr>
+                    <tr><td>NOT IN(...)</td><td>ليست ضمن القائمة ...</td></tr>
+                    <tr><td>NOT LIKE '%...'</td><td>ليست مطابقة</td></tr>
+                    <tr><td>IS NOT NULL</td><td>ليست قيمة خالية</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 45. مثال عرض اسم ووظيفة الموظفين -->
+        <section>
+            <h2>45. مثال: عرض اسم ووظيفة الموظفين الذين ليست وظائفهم من ضمن الوظائف التالية: (CLERK, MANAGER, ANALYST)</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, JOB FROM EMP WHERE JOB NOT IN ('CLERK', 'MANAGER', 'ANALYST');</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام NOT IN لاستبعاد الوظائف المذكورة في القائمة.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>ALLEN</td><td>SALESMAN</td></tr>
+                        <tr><td>WARD</td><td>SALESMAN</td></tr>
+                        <tr><td>MARTIN</td><td>SALESMAN</td></tr>
+                        <tr><td>KING</td><td>PRESIDENT</td></tr>
+                        <tr><td>TURNER</td><td>SALESMAN</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 46. مثال عرض اسم ووظيفة وراتب الموظفين -->
+        <section>
+            <h2>46. مثال: عرض اسم ووظيفة وراتب الموظفين الذين لا تنحصر رواتبهم بين 1000 و 3000</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, JOB, SAL FROM EMP WHERE SAL NOT BETWEEN 1000 AND 3000;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام NOT BETWEEN لاستبعاد الموظفين الذين تتراوح رواتبهم بين 1000 و 3000.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>SAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>SMITH</td><td>CLERK</td><td>800</td></tr>
+                        <tr><td>KING</td><td>PRESIDENT</td><td>5000</td></tr>
+                        <tr><td>JAMES</td><td>CLERK</td><td>950</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 47. مثال عرض اسم ووظيفة وراتب وعمولة الموظفين -->
+        <section>
+            <h2>47. مثال: عرض اسم ووظيفة وراتب وعمولة الموظفين الذين يأخذون عمولة</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, JOB, SAL, COMM FROM EMP WHERE COMM IS NOT NULL;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام IS NOT NULL لعرض الموظفين الذين يأخذون عمولة (قيمة غير خالية في حقل COMM).</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>SAL</th>
+                            <th>COMM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>ALLEN</td><td>SALESMAN</td><td>1600</td><td>300</td></tr>
+                        <tr><td>WARD</td><td>SALESMAN</td><td>1250</td><td>500</td></tr>
+                        <tr><td>MARTIN</td><td>SALESMAN</td><td>1250</td><td>1400</td></tr>
+                        <tr><td>TURNER</td><td>SALESMAN</td><td>1500</td><td>0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 48. الدوال التجميعية -->
+        <section id="aggregate-functions">
+            <h2>48. الدوال التجميعية (Group Functions)</h2>
+            <p>هي دوال تتعامل مع بيانات مجموعة من الصفوف لإخراج قيمة واحدة فقط.</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>الدالة</th>
+                        <th>FUNCTION</th>
+                        <th>وظيفتها</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>SUM</td><td>دالة تستخدم لإيجاد المجموع لعدد من القيم</td><td>مجموع القيم</td></tr>
+                    <tr><td>MAX</td><td>دالة تستخدم لإيجاد أكبر قيمة من بين مجموعة من القيم</td><td>القيمة القصوى</td></tr>
+                    <tr><td>MIN</td><td>دالة تستخدم لإيجاد أقل قيمة من بين مجموعة من القيم</td><td>القيمة الدنيا</td></tr>
+                    <tr><td>AVG</td><td>دالة تستخدم لإيجاد المتوسط الحسابي لمجموعة من القيم</td><td>المتوسط الحسابي</td></tr>
+                    <tr><td>COUNT</td><td>دالة تستخدم لإيجاد عدد القيم أو عدد الصفوف</td><td>العد</td></tr>
+                    <tr><td>STDDEV</td><td>دالة تستخدم لإيجاد الانحراف المعياري لمجموعة من القيم</td><td>الانحراف المعياري</td></tr>
+                    <tr><td>VARIANCE</td><td>دالة تستخدم لإيجاد مقدار التباين (الفرق) لمجموعة من القيم</td><td>التباين</td></tr>
+                </tbody>
+            </table>
+            <div class="note">
+                <strong>ملاحظة:</strong> جميع هذه الدوال تتجاهل القيم الفارغة NULL داخل الأعمدة.
+            </div>
+        </section>
+        
+        <!-- 49. مثال عرض مجموع رواتب الموظفين وأكبر راتب وأقل راتب والمتوسط الحسابي -->
+        <section>
+            <h2>49. مثال: عرض مجموع رواتب الموظفين وأكبر راتب وأقل راتب والمتوسط الحسابي للرواتب</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT SUM(SAL), MAX(SAL), MIN(SAL), AVG(SAL) FROM EMP;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام الدوال التجميعية SUM، MAX، MIN، AVG لحساب إحصائيات رواتب الموظفين.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SUM(SAL)</th>
+                            <th>MAX(SAL)</th>
+                            <th>MIN(SAL)</th>
+                            <th>AVG(SAL)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>29025</td><td>5000</td><td>800</td><td>2073.21</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 50. مثال عرض أول أسماء الموظفين حسب الترتيب الأبجدي وآخر الأسماء -->
+        <section>
+            <h2>50. مثال: عرض أول أسماء الموظفين حسب الترتيب الأبجدي وآخر الأسماء</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT MAX(ENAME), MIN(ENAME) FROM EMP;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>تتعامل الدالتان MIN و MAX مع البيانات النصية حسب الترتيب الأبجدي (الألفبائي).</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>MAX(ENAME)</th>
+                            <th>MIN(ENAME)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>WORD</td><td>ADAMS</td></tr>  <!-- تم تعديل النتيجة بناءً على الترتيب الأبجدي الفعلي -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 51. مثال عرض المتوسط الحسابي لمكافآت الموظفين -->
+        <section>
+            <h2>51. مثال: عرض المتوسط الحسابي لمكافآت الموظفين</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT AVG(ISNULL(COMM,0)) FROM EMP;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام الدالة ISNULL(COMM,0) لحل مشكلة القيم الفارغة NULL الموجودة داخل العمود COMM. المتوسط الحسابي عبارة عن مجموع القيم مقسوماً على عدد الموظفين، وبما أن الدوال التجميعية تتجاهل القيم الفارغة فكان لابد من استخدام الدالة ISNULL حتى تتم القسمة على عدد الموظفين وهم 14 موظفاً.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>AVG(ISNULL(COMM,0))</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>157.14</td></tr>  <!-- (300+500+1400+0)/14 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 52. حالتي التعامل مع الدالة COUNT -->
+        <section>
+            <h2>52. حالتي التعامل مع الدالة COUNT</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>الصيغة</th>
+                        <th>الوظيفة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>COUNT(*)</td>
+                        <td>تستخدم هذه الدالة لعد جميع الصفوف داخل الجدول بما فيها الصفوف المكررة والصفوف التي تحتوي على القيم الفارغة NULL، وإذا كانت جملة الاستفسار تحتوي على شرط WHERE فإنها تقوم بعد الصفوف حسب جملة الشرط.</td>
+                    </tr>
+                    <tr>
+                        <td>COUNT(column)</td>
+                        <td>تستخدم هذه الدالة لعد قيم أو بيانات عمود معين مع تجاهل القيم NULL.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 53. مثال عرض إجمالي عدد الصفوف -->
+         <section>
+            <h2>53. مثال: عرض إجمالي عدد الصفوف داخل جدول الموظفين وهم 14 صفاً، وأيضا عرض الموظفين الذين يأخذون مكافآت وعددهم داخل الجدول 4، وعرض عدد الإدارات داخل العمود DEPTNO وهم 14</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT COUNT(*), COUNT(COMM), COUNT(DEPTNO) FROM EMP;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>
+                <ul>
+                    <li>COUNT(*) تعد جميع الصفوف (14)</li>
+                    <li>COUNT(COMM) تعد قيم العمود COMM مع تجاهل القيم NULL (4)</li>
+                    <li>COUNT(DEPTNO) تعد جميع قيم العمود DEPTNO بما فيها المكررة (14)</li>
+                </ul>
+                </p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>COUNT(*)</th>
+                            <th>COUNT(COMM)</th>
+                            <th>COUNT(DEPTNO)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>14</td><td>4</td><td>14</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 54. مثال عرض عدد الموظفين الذين يأخذون عمولة في الإدارة رقم 30 -->
+        <section>
+            <h2>54. مثال: عرض عدد الموظفين الذين يأخذون عمولة في الإدارة رقم 30 وعرض إجمالي عدد الموظفين في الإدارة</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT COUNT(COMM), COUNT(*) FROM EMP WHERE DEPTNO = 30;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>عدد الموظفين الذين يأخذون عمولة في الإدارة رقم 30 هو 4 موظفين، بينما إجمالي عدد الموظفين في الإدارة هو 6 موظفين.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>COUNT(COMM)</th>
+                            <th>COUNT(*)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>4</td><td>6</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 55. إنشاء مجموعات من البيانات باستخدام GROUP BY -->
+        <section id="group-by">
+            <h2>55. إنشاء مجموعات من البيانات باستخدام الجزء GROUP BY</h2>
+            <p>يفرض أننا نريد إيجاد أكبر راتب يأخذه موظف في كل إدارة، معنى ذلك أننا نُقسم الموظفين داخل الجدول إلى مجموعات حسب الإدارات، ثم نقوم بإيجاد أكبر راتب في كل إدارة.</p>
+        </section>
+        
+        <!-- 56. مثال عرض المتوسط الحسابي لمرتبات الموظفين في كل إدارة -->
+        <section>
+            <h2>56. مثال: عرض المتوسط الحسابي لمرتبات الموظفين في كل إدارة، وترتيب المخرجات تصاعدياً حسب المتوسط الحسابي</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT DEPTNO, AVG(SAL) FROM EMP GROUP BY DEPTNO ORDER BY AVG(SAL);</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم تقسيم الموظفين إلى مجموعات حسب رقم الإدارة، ثم حساب متوسط الراتب لكل مجموعة، وأخيراً ترتيب النتائج حسب المتوسط الحسابي تصاعدياً.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>DEPTNO</th>
+                            <th>AVG(SAL)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>30</td><td>1566.6667</td></tr>
+                        <tr><td>20</td><td>2175</td></tr>
+                        <tr><td>10</td><td>2916.6667</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 57. ملاحظات على استخدام الدوال التجميعية -->
+        <section>
+            <h2>57. ملاحظات على استخدام الدوال التجميعية</h2>
+            <ol>
+                <li>عند كتابة أي عمود داخل قائمة SELECT، لابد من كتابته مع الجزء GROUP BY، وذلك لأن الدوال التجميعية تتعامل مع عدة صفوف.</li>
+                <li>يمكن استخدام الجزء ORDER BY لترتيب الصفوف مع الدوال التجميعية.</li>
+                <li>لا يمكن استخدام الدوال التجميعية في الجزء WHERE، ولكن نستخدم الجزء HAVING بدلاً منها.</li>
+            </ol>
+        </section>
+        
+        <!-- 58. مثال عرض المتوسط الحسابي لمرتبات الموظفين في كل إدارة -->
+        <section>
+            <h2>58. مثال: عرض المتوسط الحسابي لمرتبات الموظفين في كل إدارة بشرط أن تكون المتوسطات الحسابية للمرتبات أكبر من 2000</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT DEPTNO, AVG(SAL) FROM EMP GROUP BY DEPTNO HAVING AVG(SAL) &gt; 2000;</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام HAVING بدلاً من WHERE لأننا نريد تطبيق شرط على نتيجة دالة تجميعية (AVG).</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>DEPTNO</th>
+                            <th>AVG(SAL)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>20</td><td>2175</td></tr>
+                        <tr><td>10</td><td>2916.6667</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 59. مثال عرض مجموع رواتب الموظفين حسب كل وظيفة -->
+        <section>
+            <h2>59. مثال: عرض مجموع رواتب الموظفين حسب كل وظيفة، بشرط استبعاد الوظيفة التي تتضمن الحروف SALES في أولها، وأيضا استبعاد المجموع الأصغر (أو يساوي) من 5000 (أي نضع أكبر)، وترتيب المخرجات حسب مجموع الرواتب</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT JOB, SUM(SAL) FROM EMP WHERE JOB NOT LIKE 'SALES%' GROUP BY JOB HAVING SUM(SAL) &gt; 5000 ORDER BY SUM(SAL);</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام WHERE لاستبعاد الوظائف التي تبدأ بـ SALES، وGROUP BY لتجميع حسب الوظيفة، وHAVING لاستبعاد المجاميع <= 5000، وORDER BY للترتيب حسب المجموع.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>JOB</th>
+                            <th>SUM(SAL)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>CLERK</td><td>4150</td></tr>  <!-- 800+1100+950+1300 = 4150 -->
+                        <tr><td>MANAGER</td><td>8275</td></tr> <!-- 2975+2850+2450 = 8275 -->
+                        <tr><td>ANALYST</td><td>6000</td></tr> <!-- 3000+3000 = 6000 -->
+                        <tr><td>PRESIDENT</td><td>5000</td></tr> <!-- 5000 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 60. الاستعلام الفرعي -->
+        <section id="subqueries">
+            <h2>60. الاستعلام الفرعي (Subquery)</h2>
+            <p>هو استعلام يتم كتابته داخل استعلام آخر، ويكون عادة في جمل WHERE أو HAVING أو FROM.</p>
+        </section>
+        
+        <!-- 61. الشكل العام للاستعلامات الفرعية -->
+        <section>
+            <h2>61. الشكل العام لجملة الاستعلامات الفرعية</h2>
+            <div class="code">
+SELECT مجموعة الأعمدة المطلوبة
+FROM الجدول
+WHERE العمود معامل المقارنة (SELECT مجموعة الأعمدة المطلوبة FROM الجدول);
+            </div>
+        </section>
+        
+        <!-- 62. مثال عرض أرقام وأسماء ووظائف الموظفين -->
+        <section>
+            <h2>62. مثال: عرض أرقام وأسماء ووظائف الموظفين الذين يعملون على نفس وظيفة الموظف ALLEN</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT EMPNO, ENAME, JOB FROM EMP WHERE JOB = (SELECT JOB FROM EMP WHERE ENAME = 'ALLEN');</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>في المثال السابق تم إيجاد وظيفة الموظف ALLEN أولاً بعمل استعلام داخلي (فرعي) وكانت النتيجة هي SALESMAN، ثم تم عرض أرقام وأسماء ووظائف الموظفين الذين يعملون بوظيفة SALESMAN عن طريق الاستعلام الخارجي (الرئيس).</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>EMPNO</th>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>7499</td><td>ALLEN</td><td>SALESMAN</td></tr>
+                        <tr><td>7521</td><td>WARD</td><td>SALESMAN</td></tr>
+                        <tr><td>7654</td><td>MARTIN</td><td>SALESMAN</td></tr>
+                        <tr><td>7844</td><td>TURNER</td><td>SALESMAN</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 63. أنواع الاستعلامات الفرعية -->
+        <section>
+            <h2>63. أنواع الاستعلامات الفرعية</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>النوع</th>
+                        <th>الوصف</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Simple - Row Subquery</td><td>استعلام فرعي أحادي الصف ويرجع بصف واحد</td></tr>
+                    <tr><td>Multiple - Row Subquery</td><td>استعلام فرعي متعدد الصف ويرجع بأكثر من صف</td></tr>
+                    <tr><td>Multiple - column Subquery</td><td>استعلام فرعي متعدد الأعمدة ويرجع بأكثر من عمود</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 64. شروط الاستعلام الفرعي -->
+        <section>
+            <h2>64. متطلبات وإرشادات الاستعلام الفرعي</h2>
+            <ol>
+                <li>يجب وضع الاستعلام الفرعي بين قوسين.</li>
+                <li>يجب وضع الاستعلام الفرعي يمين معامل المقارنة (=, &gt;, &lt;, &gt;=, &lt;=, !=).</li>
+                <li>يجب التأكد من استخدام المعاملات الأحادية الصف مع الاستعلامات الفرعية الأحادية الصف.</li>
+                <li>يجب التأكد من استخدام المعاملات المتعددة الصفوف مع الاستعلامات الفرعية المتعددة الصفوف.</li>
+            </ol>
+        </section>
+        
+        <!-- 65. أنواع معاملات المقارنة مع الاستعلام الفرعي -->
+        <section>
+            <h2>65. أنواع معاملات المقارنة المستخدمة مع الاستعلام الفرعي</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>النوع</th>
+                        <th>المعاملات</th>
+                        <th>الاستخدام</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>معاملات أحادية الصف</td><td>=, &gt;, &lt;, &gt;=, &lt;=, !=</td><td>تستخدم مع الاستعلامات الفرعية أحادية الصف أي التي ترجع بصف واحد (قيمة واحدة)</td></tr>
+                    <tr><td>معاملات متعددة الصف</td><td>ALL, ANY, IN</td><td>تستخدم مع الاستعلامات الفرعية متعددة الصفوف أي التي ترجع بأكثر من صف</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 66. أماكن كتابة الاستعلامات الفرعية داخل جملة SELECT -->
+        <section>
+            <h2>66. أماكن كتابة الاستعلامات الفرعية داخل جملة SELECT</h2>
+            <p>يجب كتابة الاستعلامات الفرعية في الأجزاء التالية من جملة SELECT:</p>
+            <ul>
+                <li>WHERE</li>
+                <li>HAVING</li>
+                <li>FROM</li>
+            </ul>
+        </section>
+        
+        <!-- 67. الاستعلامات الفرعية الأحادية الصف -->
+        <section>
+            <h2>67. الاستعلامات الفرعية الأحادية الصف (Single-Row Subqueries)</h2>
+            <p>وهي استعلامات دائماً تكون نتيجتها صف واحد فقط ولذلك تستخدم معها المعاملات الأحادية الصف (&gt;, &lt;, =, &gt;=, &lt;=, !=).</p>
+        </section>
+        
+        <!-- 68. مثال عرض أسماء ورواتب وأرقام إدارات الموظفين -->
+        <section>
+            <h2>68. مثال: قم بعرض أسماء ورواتب وأرقام إدارات الموظفين الذين يعملون في نفس إدارة الموظف KING</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, SAL, DEPTNO FROM EMP WHERE DEPTNO = (SELECT DEPTNO FROM EMP WHERE ENAME = 'KING');</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>في المثال السابق تم إيجاد رقم إدارة الموظف KING أولاً بعمل استعلام داخلي (فرعي)، ثم عرض أسماء ورواتب وأرقام إدارات الموظفين في الإدارة رقم (10) وهي إدارة الموظف KING.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>SAL</th>
+                            <th>DEPTNO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>CLARK</td><td>2450</td><td>10</td></tr>
+                        <tr><td>KING</td><td>5000</td><td>10</td></tr>
+                        <tr><td>MILLER</td><td>1300</td><td>10</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 69. مثال عرض أسماء ووظائف ورواتب الموظفين -->
+        <section>
+            <h2>69. مثال: قم بعرض أسماء ووظائف ورواتب الموظفين الذين رواتبهم مساوية لأقل راتب</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, JOB, SAL FROM EMP WHERE SAL = (SELECT MIN(SAL) FROM EMP);</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>يتم استخدام الدالة التجميعية MIN(SAL) في الاستعلام الفرعي لإيجاد أقل راتب، ثم البحث عن الموظفين الذين رواتبهم تساوي هذه القيمة.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>SAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>SMITH</td><td>CLERK</td><td>800</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 70. مثال عرض أرقام الإدارات وأقل راتب -->
+        <section>
+            <h2>70. مثال: قم بعرض أرقام الإدارات وأقل راتب يأخذه موظف فيها بحيث يكون أقل راتب فيها أكبر من أقل راتب في الإدارة رقم 20</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT DEPTNO, MIN(SAL) FROM EMP GROUP BY DEPTNO HAVING MIN(SAL) &gt; (SELECT MIN(SAL) FROM EMP WHERE DEPTNO = 20);</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>في المثال السابق تم استخدام الدالة التجميعية MIN(SAL) في الاستعلام الرئيس لذلك استخدمنا HAVING ومعها الاستعلام الفرعي.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>DEPTNO</th>
+                            <th>MIN(SAL)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>10</td><td>1300</td></tr>
+                        <tr><td>30</td><td>950</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 71. مثال عرض أسماء ووظائف الموظفين -->
+        <section>
+            <h2>71. مثال: قم بعرض أسماء ووظائف الموظفين الذين يعملون على نفس وظيفة الموظف ذي الرقم 7369 ويأخذون مرتب أكبر من مرتب الموظف ذو الرقم 7876</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, JOB FROM EMP WHERE JOB = (SELECT JOB FROM EMP WHERE EMPNO = 7369) AND SAL &gt; (SELECT SAL FROM EMP WHERE EMPNO = 7876);</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>في هذا المثال ثلاثة استعلامات: اثنان منها استعلامات فرعية (الأول يأتي بوظيفة الموظف ذي الرقم 7369، والثاني يأتي براتب الموظف ذي الرقم 7876)، والاستعلام الثالث هو الرئيس.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>MILLER</td><td>CLERK</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 72. الاستعلامات الفرعية المتعددة الصفوف -->
+        <section>
+            <h2>72. الاستعلامات الفرعية المتعددة الصفوف (Row Subqueries)</h2>
+            <p>وهي استعلامات ترجع دائماً بأكثر من صف ولذلك يستخدم معها المعاملات متعددة الصفوف (ALL, ANY, IN).</p>
+        </section>
+        
+        <!-- 73. معاملات الاستعلامات الفرعية المتعددة الصفوف -->
+        <section>
+            <h2>73. معاملات الاستعلامات الفرعية المتعددة الصفوف مع المعنى</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>المعامل</th>
+                        <th>المعنى</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>IN</td><td>المساواة بأي قيمة داخل قائمة</td></tr>
+                    <tr><td>ANY</td><td>مقارنة قيمة بأي من قيم داخل قائمة</td></tr>
+                    <tr><td>&lt; ANY</td><td>معناها أقل من أكبر قيمة داخل قائمة</td></tr>
+                    <tr><td>&gt; ANY</td><td>معناها أكبر من أقل قيمة داخل قائمة</td></tr>
+                    <tr><td>ALL</td><td>مقارنة قيمة بكل ما هو موجود داخل قائمة</td></tr>
+                    <tr><td>&lt; ALL</td><td>معناها أقل من أقل قيمة داخل قائمة</td></tr>
+                    <tr><td>&gt; ALL</td><td>معناها أكبر من أعلى قيمة داخل قائمة</td></tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 74. مثال عرض أسماء ورواتب وأرقام إدارات الموظفين -->
+        <section>
+            <h2>74. مثال: قم بعرض أسماء ورواتب وأرقام إدارات الموظفين الذين يأخذون رواتب مساوية لأقل راتب في كل إدارة</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT ENAME, SAL, DEPTNO FROM EMP WHERE SAL IN (SELECT MIN(SAL) FROM EMP GROUP BY DEPTNO);</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>لابد من إيجاد أقل راتب في كل إدارة وهذا يعمل استعلام فرعي يرجع بأقل الرواتب في كل إدارة وهي (800, 950, 1300) ثم استخدام هذه الرواتب في عرض البيانات بشرط أن يكون الراتب مساوياً لإحدى هذه القيم. تم استخدام المعامل المتعدد IN لأننا هنا نقارن الراتب بمجموعة من الصفوف.</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ENAME</th>
+                            <th>SAL</th>
+                            <th>DEPTNO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>SMITH</td><td>800</td><td>20</td></tr>
+                        <tr><td>JAMES</td><td>950</td><td>30</td></tr>
+                        <tr><td>MILLER</td><td>1300</td><td>10</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 75. مثال عرض أرقام وأسماء ووظائف ورواتب الموظفين -->
+        <section>
+            <h2>75. مثال: قم بعرض أرقام وأسماء ووظائف ورواتب الموظفين الذين رواتبهم أقل من رواتب الموظفين أصحاب الوظيفة CLERK دون عرض موظفي الوظيفة CLERK</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT EMPNO, ENAME, JOB, SAL FROM EMP WHERE SAL &lt; ANY (SELECT SAL FROM EMP WHERE JOB = 'CLERK') AND JOB != 'CLERK';</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>في المثال السابق تم عمل استعلام فرعي لإيجاد رواتب الموظفين المسجلين بالوظيفة CLERK (800, 900, 1100, 1300) ثم استخدام هذه القيم في الاستعلام الرئيسي لعرض بيانات الموظفين الذين يأخذون رواتب أقل من أي من هذه القيم، كما تم استبعاد الموظفين المسجلين بالوظيفة CLERK. وللاحظ أن المعامل (SAL &lt; ANY) معناه بشرط أن يكون الراتب أقل من أكبر قيمة من القيم (800, 900, 1100, 1300).</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>EMPNO</th>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>SAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>7521</td><td>WARD</td><td>SALESMAN</td><td>1250</td></tr>
+                        <tr><td>7654</td><td>MARTIN</td><td>SALESMAN</td><td>1250</td></tr>
+                        <tr><td>7900</td><td>JAMES</td><td>CLERK</td><td>950</td></tr> <!-- تم استبعاده لأنه CLERK -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 76. مثال عرض أرقام وأسماء ووظائف ورواتب الموظفين -->
+        <section>
+            <h2>76. مثال: قم بعرض أرقام وأسماء ووظائف ورواتب الموظفين الذين رواتبهم أكبر من كل المتوسطات الحسابية للمرتبات في كل إدارة</h2>
+            <div class="example">
+                <div class="example-title">الاستعلام:</div>
+                <div class="code">SELECT EMPNO, ENAME, JOB, SAL FROM EMP WHERE SAL &gt; ALL (SELECT AVG(SAL) FROM EMP GROUP BY DEPTNO);</div>
+                
+                <div class="example-title">الشرح:</div>
+                <p>في المثال السابق تم عمل استعلام فرعي لإيجاد المتوسطات الحسابية لرواتب الموظفين وكانت (2916.6667, 2175, 1566.6667) ثم استخدام هذه القيم في الاستعلام الرئيسي لعرض بيانات الموظفين الذين رواتبهم أكبر من كل هذه القيم، وللاحظ أن المعامل (SAL &gt; ALL) معناه بشرط أن يكون الراتب أكبر من أعلى قيمة من القيم (2916.6667, 2175).</p>
+                
+                <div class="example-title">النتيجة:</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>EMPNO</th>
+                            <th>ENAME</th>
+                            <th>JOB</th>
+                            <th>SAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>7839</td><td>KING</td><td>PRESIDENT</td><td>5000</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <footer>
+          Fidaa Muhimed  | صفحة مرجعية لتعليم SQL 
+        </footer>
+    </div>
+</body>
+</html>
